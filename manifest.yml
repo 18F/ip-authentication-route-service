@@ -1,5 +1,4 @@
 ---
-
 applications:
   - name: ((app-name))
     instances: 2
@@ -14,5 +13,4 @@ applications:
     env:
       APP_NAME: ((app-name))
       ALLOWED_IPS: |
-        allow 1.2.3.4/32;
-        allow 2.3.4.5/32;
+        allow 0.0.0.0/0;

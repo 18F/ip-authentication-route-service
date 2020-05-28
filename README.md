@@ -1,24 +1,8 @@
-# GOV.UK PaaS IP authentication route service
+# IP authentication route service
 
-This repo contains a simple Nginx application which acts as a proxy for your
-web applications and provides an IP restriction layer.
+This repo contains a simple Nginx application which acts as a proxy for your web applications and provides an IP restriction layer.
 
-This repo is a template, which you should customise according to your needs
-using the application manifest.
-
-All PaaS traffic will go through the route service to filter traffic.
-
-## Requirements
-
-* Cloud Foundry CLI (https://docs.cloudfoundry.org/cf-cli/install-go-cli.html)
-
-You should log in using the Cloud Foundry CLI
-(https://docs.cloud.service.gov.uk/#setting-up-the-command-line).
-
-For all actions you should always make sure you are targeting the correct
-space.
-
-## Customisation
+## Customization
 
 Edit the `manifest.yml` and change the `ALLOWED_IPS` as appropriate.
 
@@ -29,20 +13,49 @@ To deploy the app, run `cf push`.
 If you have not overwritten the `((app-name))` variables then you will need to
 run `cf push --var app-name=my-app`
 
-If you want to add a custom route, add a route definition to the manifest:
+### Use the app as a route service
 
-``` applications:
-  - name: ((app-name))
-    routes:
-      - route: my-subdomain.my-domain.com
-    ...
+From the command line, run:
+
+```
+cf create-user-provided-service SERVICE_INSTANCE -r ROUTE_SERVICE_URL
 ```
 
-## Use the app as a route service
+where `SERVICE_INSTANCE` is a unique, descriptive name for this route service instance, and `ROUTE_SERVICE_URL` is the url of the route service endpoint; for example:
 
-Please refer to the official GOV.UK PaaS
-[documentation on route services](https://docs.cloud.service.gov.uk/deploying_services/route_services/#user-provided-route-services)
-for steps on deploying the route service.
+```
+cf create-user-provided-service my-route-service -r https://route-service.example.org
+```
+
+The service will be immediately ready to be used, and you can query its status by running:
+
+```
+cf service my-route-service
+```
+
+Bind this route service instance to the application route
+
+```
+cf bind-route-service DOMAIN SERVICE_INSTANCE --hostname HOSTNAME
+```
+
+where:
+
+- `DOMAIN` is your app domain
+- `SERVICE_INSTANCE` the name of the service that you have just created
+- `HOSTNAME` the host or app name assigned to the app
+
+For example, if your app is named `myapp`:
+
+```
+cf bind-route-service app.cloud.gov my-route-service --hostname myapp
+```
+
+You can list the routes of the current space to see the applications and route services bound to them:
+
+```
+cf routes
+```
 
 ## Checking that it works
 
